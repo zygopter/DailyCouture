@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         BrandManager.initializeBrands()
         BrandManager.loadBrands(this)
 
-        viewModel.saveClotheItem(ClotheItem(R.drawable.chemise_blanche,"Chemise blanche élégante", ClotheType.TOPS, "XL", Brand("H&M"), "Armoire dressing"))
+        viewModel.saveClotheItem(ClotheItem(R.drawable.chemise_blanche, emptyList<Int>(),"Chemise blanche élégante", ClotheType.TOPS, "XL", Brand("H&M"), "Armoire dressing"))
 
         setContent {
             val navController = rememberNavController()

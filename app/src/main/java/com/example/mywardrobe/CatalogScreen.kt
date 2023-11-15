@@ -309,6 +309,7 @@ fun CreateClotheItemDialog(
                         onClick = {
                             val updatedClotheItem = ClotheItem(
                                 pictureRes = R.drawable.placeholder_image,
+                                pictures = emptyList<Int>(),
                                 title = itemName,
                                 type = itemType,
                                 size = itemSize,

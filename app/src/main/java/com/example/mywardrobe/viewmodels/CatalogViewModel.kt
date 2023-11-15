@@ -18,14 +18,14 @@ class CatalogViewModel: ViewModel() {
     var isDialogOpen by mutableStateOf(false)
 
     // État pour gérer les données du nouvel objet ClotheItem
-    var newClotheItem by mutableStateOf(ClotheItem(R.drawable.placeholder_image,"", ClotheType.OTHER, "", Brand(""), ""))
+    var newClotheItem by mutableStateOf(ClotheItem(R.drawable.placeholder_image, emptyList<Int>(), "", ClotheType.OTHER, "", Brand(""), ""))
         private set
 
     // Fonction pour ouvrir la boîte de dialogue
     fun openDialog() {
         isDialogOpen = true
         // Réinitialisez les données du nouvel objet ClotheItem si nécessaire
-        newClotheItem = ClotheItem(R.drawable.placeholder_image,"", ClotheType.OTHER, "", Brand(""), "")
+        newClotheItem = ClotheItem(R.drawable.placeholder_image, emptyList<Int>(),"", ClotheType.OTHER, "", Brand(""), "")
     }
 
     fun updateNewClotheItem(item: ClotheItem) {

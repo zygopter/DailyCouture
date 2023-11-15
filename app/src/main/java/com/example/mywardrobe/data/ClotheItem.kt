@@ -21,6 +21,7 @@ enum class ClotheType(val displayName: String) {
 
 data class ClotheItem(
     val pictureRes: Int,
+    val pictures: List<Int>,
     val title: String,
     val type: ClotheType,
     val size: String,
