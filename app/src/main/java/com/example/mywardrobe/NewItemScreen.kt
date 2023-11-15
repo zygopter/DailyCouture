@@ -11,8 +11,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mywardrobe.components.ExpandableListSelector
-import com.example.mywardrobe.components.MyExposedDropdownMenu
 import com.example.mywardrobe.data.BrandManager
+import com.example.mywardrobe.viewmodels.CatalogViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +53,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                 onValueChange = { itemName = it },
                 label = { Text("Name") }
             )
-            MyExposedDropdownMenu(items = BrandManager.getBrandsString(),
+            ExpandableListSelector(items = BrandManager.getBrandsString(),
                 onItemSelected = { itemBrand = it },
                 onAddItem = { newBrand ->
                     BrandManager.addBrand(context, newBrand)

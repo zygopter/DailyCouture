@@ -8,8 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Check
@@ -27,6 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.mywardrobe.components.WardrobeBottomNavigation
+import com.example.mywardrobe.data.Brand
+import com.example.mywardrobe.viewmodels.CatalogViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,26 +63,7 @@ fun WardrobeScreen(viewModel: CatalogViewModel, navController: NavHostController
         bottomBar = {
             BottomAppBar(
             ) {
-                BottomNavigation {
-                    BottomNavigationItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Accueil") },
-                        label = { Text("Accueil") },
-                        selected = false,
-                        onClick = { /*TODO*/ }
-                    )
-                    BottomNavigationItem(
-                        icon = { Icon(painter = painterResource(id = R.drawable.baseline_checkroom_24), contentDescription = "Catalog") },
-                        label = { Text("Catalog") },
-                        selected = true,
-                        onClick = { /*TODO*/ }
-                    )
-                    BottomNavigationItem(
-                        icon = { Icon(painter = painterResource(id = R.drawable.baseline_diversity_1_24), contentDescription = "Community") },
-                        label = { Text("Community") },
-                        selected = false,
-                        onClick = { /*TODO*/ }
-                    )
-                }
+                WardrobeBottomNavigation(1, navController)
             }
         },
         floatingActionButton = {
@@ -386,10 +368,10 @@ fun CreateClotheItemDialog(
                 )
 
                 OutlinedTextField(
-                    value = itemBrand,
+                    value = itemBrand.name,
                     onValueChange = {
-                        itemBrand = it
-                        onClotheItemChanged(clotheItem.copy(brand = it))
+                        itemBrand = Brand(it)
+                        onClotheItemChanged(clotheItem.copy(brand = Brand(it)))
                     },
                     label = { Text("Marque du vêtement") },
                     modifier = Modifier
@@ -421,7 +403,8 @@ fun CreateClotheItemDialog(
                                 title = itemName,
                                 type = itemType,
                                 size = itemSize,
-                                brand = itemBrand
+                                brand = itemBrand,
+                                storedPlace = ""
                             )
                             onSaveClick(updatedClotheItem)
                             onDialogDismiss()

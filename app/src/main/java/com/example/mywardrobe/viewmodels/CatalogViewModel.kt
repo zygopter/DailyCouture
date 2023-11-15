@@ -1,10 +1,14 @@
-package com.example.mywardrobe
+package com.example.mywardrobe.viewmodels
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.mywardrobe.ClotheItem
+import com.example.mywardrobe.ClotheType
+import com.example.mywardrobe.R
+import com.example.mywardrobe.data.Brand
 
 class CatalogViewModel: ViewModel() {
     private val _clotheItems = mutableStateListOf<ClotheItem>()
@@ -14,14 +18,14 @@ class CatalogViewModel: ViewModel() {
     var isDialogOpen by mutableStateOf(false)
 
     // État pour gérer les données du nouvel objet ClotheItem
-    var newClotheItem by mutableStateOf(ClotheItem(R.drawable.placeholder_image,"", ClotheType.OTHER, "", ""))
+    var newClotheItem by mutableStateOf(ClotheItem(R.drawable.placeholder_image,"", ClotheType.OTHER, "", Brand(""), ""))
         private set
 
     // Fonction pour ouvrir la boîte de dialogue
     fun openDialog() {
         isDialogOpen = true
         // Réinitialisez les données du nouvel objet ClotheItem si nécessaire
-        newClotheItem = ClotheItem(R.drawable.placeholder_image,"", ClotheType.OTHER, "", "")
+        newClotheItem = ClotheItem(R.drawable.placeholder_image,"", ClotheType.OTHER, "", Brand(""), "")
     }
 
     fun updateNewClotheItem(item: ClotheItem) {

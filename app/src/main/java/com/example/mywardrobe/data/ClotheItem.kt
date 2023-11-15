@@ -1,5 +1,7 @@
 package com.example.mywardrobe
 
+import com.example.mywardrobe.data.Brand
+
 enum class ClotheType(val displayName: String) {
     TOPS("Tops"),
     PANTS("Pants"),
@@ -22,6 +24,7 @@ data class ClotheItem(
     val title: String,
     val type: ClotheType,
     val size: String,
-    val brand: String,
-    val desc: String = ""
+    val brand: Brand,
+    val storedPlace: String,
+    val notes: String = ""
 )

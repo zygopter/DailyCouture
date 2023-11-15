@@ -5,38 +5,29 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material3.Divider
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.mywardrobe.CatalogViewModel
+import com.example.mywardrobe.viewmodels.CatalogViewModel
 import com.example.mywardrobe.ClotheItem
 import com.example.mywardrobe.ClotheType
 import com.example.mywardrobe.R
+import com.example.mywardrobe.data.Brand
 
 @Composable
 fun CatalogScreen(clotheItems: List<ClotheItem>, onClotheItemClick: (ClotheItem) -> Unit, viewModel: CatalogViewModel) {
@@ -286,10 +277,10 @@ fun CreateClotheItemDialog(
                 )
 
                 OutlinedTextField(
-                    value = itemBrand,
+                    value = itemBrand.name,
                     onValueChange = {
-                        itemBrand = it
-                        onClotheItemChanged(clotheItem.copy(brand = it))
+                        itemBrand = Brand(it)
+                        onClotheItemChanged(clotheItem.copy(brand = Brand(it)))
                     },
                     label = { Text("Marque du vêtement") },
                     modifier = Modifier
@@ -321,7 +312,8 @@ fun CreateClotheItemDialog(
                                 title = itemName,
                                 type = itemType,
                                 size = itemSize,
-                                brand = itemBrand
+                                brand = itemBrand,
+                                storedPlace = ""
                             )
                             onSaveClick(updatedClotheItem)
                             onDialogDismiss()

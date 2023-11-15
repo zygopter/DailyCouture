@@ -8,5 +8,6 @@ data class Outfit(
     val clotheItems: List<ClotheItem>,
     val name: String,
     val pictureUrl: String,
-    val style: Style // Ajout de l'attribut style
+    val style: Style,
+    val stats: String = ""
 )
