@@ -1,16 +1,17 @@
 package com.example.mywardrobe.viewmodels
 
-import android.location.Location
+import android.location.Address
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mywardrobe.data.WeatherResponse
-import com.example.mywardrobe.network.ApiInterface
 import com.example.mywardrobe.network.RetrofitClient
 import com.example.mywardrobe.utils.PermissionUtils.DEFAULT_LOCATION
 import kotlinx.coroutines.launch
+import java.util.*
 
 class WeatherViewModel : ViewModel() {
 
@@ -20,8 +21,7 @@ class WeatherViewModel : ViewModel() {
     val weatherIcon: LiveData<ImageVector> = _weatherIcon
 
     // Fonction pour lancer une requête météo avec une localisation donnée
-    fun getWeatherForLocation(location: Location) {
-        var cityName: String = ""
+    fun getWeatherForLocation(cityName: String) {
         viewModelScope.launch {
             try {
                 // Remplacez 'ApiInterface::class.java' par votre interface de service Retrofit

@@ -2,11 +2,14 @@ package com.example.mywardrobe
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
+import android.os.Build
 import android.os.Looper
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -31,6 +33,10 @@ import com.example.mywardrobe.viewmodels.WeatherViewModel
 import com.google.android.gms.location.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.painter.Painter
+import coil.compose.rememberImagePainter
 
 
 @Composable
@@ -49,7 +55,18 @@ fun DailyPlannerScreen(navController: NavHostController, weatherViewModel: Weath
                 // La permission est accordée, nous pouvons maintenant écouter la localisation
                 getCurrentLocation(fusedLocationClient) { location ->
                     // Utilisez la localisation pour obtenir les données météo
-                    weatherViewModel.getWeatherForLocation(location)
+                    val lat = location.latitude
+                    val long = location.longitude
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        val geocodeListener = Geocoder.GeocodeListener { addresses ->
+                            weatherViewModel.getWeatherForLocation(addresses[0].getAddressLine(0))
+                        }
+                        geocoder.getFromLocation(lat, long, 1, geocodeListener)
+                    } else {
+                        val addresses = geocoder.getFromLocation(lat, long, 1)
+                        addresses?.get(0)?.let { weatherViewModel.getWeatherForLocation(it.getAddressLine(0)) }
+                    }
                 }
             } else {
                 // La permission a été refusée, gérer ce cas
@@ -67,7 +84,18 @@ fun DailyPlannerScreen(navController: NavHostController, weatherViewModel: Weath
                 // La permission est déjà accordée
                 getCurrentLocation(fusedLocationClient) { location ->
                     // Utilisez la localisation pour obtenir les données météo
-                    weatherViewModel.getWeatherForLocation(location)
+                    val lat = location.latitude
+                    val long = location.longitude
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        val geocodeListener = Geocoder.GeocodeListener { addresses ->
+                            weatherViewModel.getWeatherForLocation(addresses[0].getAddressLine(0))
+                        }
+                        geocoder.getFromLocation(lat, long, 1, geocodeListener)
+                    } else {
+                        val addresses = geocoder.getFromLocation(lat, long, 1)
+                        addresses?.get(0)?.let { weatherViewModel.getWeatherForLocation(it.getAddressLine(0)) }
+                    }
                 }
             }
             else -> {
@@ -159,7 +187,13 @@ fun DailyContent(weatherData: State<WeatherResponse?>) {
         weatherData.value?.let { weather ->
             // Remplacez les "Text" par vos propres composants qui affichent les données
             Text(text = "Temperature: ${weather.current?.temperature}")
+            Text(text = "Lieu: ${weather.location?.name}")
             Text(text = "Weather Description: ${weather.current?.weatherDescriptions}")
+            val imagePainter: Painter = rememberImagePainter(weather.current?.weatherIcons?.get(0).toString())
+            Image(
+                painter = imagePainter,
+                contentDescription = "Image loaded from URL"
+            )
             // Ajoutez ici d'autres informations météo que vous souhaitez afficher
         } ?: run {
             // Affichez un message ou un indicateur de chargement si les données météo ne sont pas encore chargées
