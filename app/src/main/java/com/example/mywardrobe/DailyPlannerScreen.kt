@@ -37,6 +37,7 @@ import java.util.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import coil.compose.rememberImagePainter
+import java.time.temporal.ChronoUnit
 
 
 @Composable
@@ -147,8 +148,8 @@ fun DailyPlannerScreen(navController: NavHostController, weatherViewModel: Weath
 @Composable
 fun DailyContent(weatherData: State<WeatherResponse?>) {
     val outfits = remember { mutableStateMapOf<LocalDate, String>() }
-    var currentDate by remember { mutableStateOf(LocalDate.now()) }
-    val today = LocalDate.now()
+    var currentDate by remember { mutableStateOf(LocalDate.now().plus(1, ChronoUnit.DAYS)) }
+    val tomorrow = LocalDate.now().plus(1, ChronoUnit.DAYS)
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -172,8 +173,8 @@ fun DailyContent(weatherData: State<WeatherResponse?>) {
             )
 
             IconButton(
-                onClick = { if (currentDate.isBefore(today)) currentDate = currentDate.plusDays(1) },
-                enabled = currentDate.isBefore(today)
+                onClick = { if (currentDate.isBefore(tomorrow)) currentDate = currentDate.plusDays(1) },
+                enabled = currentDate.isBefore(tomorrow)
             ) {
                 Icon(Icons.Filled.ArrowForward, "Next Day")
             }

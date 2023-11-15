@@ -10,4 +10,5 @@ interface ApiInterface {
     // The api's Data  take someTime soo that's why we will be using Defferend
     @GET("current")
     suspend fun getCurrentWeatherAsync(@Query("query") mLocation: String ): WeatherResponse
+
 }
