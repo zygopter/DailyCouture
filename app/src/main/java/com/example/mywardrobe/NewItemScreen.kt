@@ -36,6 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.compose.rememberImagePainter
+import com.example.mywardrobe.components.BeigeColors
 import com.example.mywardrobe.components.ExpandableListSelector
 import com.example.mywardrobe.components.GridImage
 import com.example.mywardrobe.components.LinkText
@@ -69,7 +70,6 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Card(
-                backgroundColor = MaterialTheme.colors.surface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
@@ -95,36 +95,9 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+
                     ClothesImageRow()
-                    /*Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly)
-                    {
-                        Card(backgroundColor = MaterialTheme.colors.secondaryVariant,
-                        modifier = Modifier
-                            //.size(width = 240.dp, height = 100.dp)
-                            //.fillMaxWidth()
-                            .weight(1.0f)
-                            .aspectRatio(1f)
-                            .padding(8.dp),
-                        elevation = 2.dp)
-                        {
-                            androidx.compose.material3.IconButton(
-                                onClick = {}
-                            ) {
-                                Icon(painterResource(id = R.drawable.baseline_add_photo_alternate_24), contentDescription = "Prendre une photo")
-                            }
-                        }
-                        Card(backgroundColor = MaterialTheme.colors.background,
-                            modifier = Modifier
-                                //.size(width = 240.dp, height = 100.dp)
-                                //.fillMaxWidth()
-                                .weight(1.0f)
-                                .aspectRatio(1f)
-                                .padding(8.dp),
-                            elevation = 1.dp)
-                        {
-                        }
-                    }*/
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -309,9 +282,9 @@ fun ClothesImageRow() {
                     .build()
             )
             Card(
-                backgroundColor = MaterialTheme.colors.secondaryVariant,
+                backgroundColor = BeigeColors.surface,
                 modifier = Modifier
-                    .padding(vertical = 4.dp)
+                    .padding(4.dp)
                     .aspectRatio(1f),
                 elevation = 2.dp
             ) {
@@ -327,10 +300,10 @@ fun ClothesImageRow() {
         }
         item {
             Card(
-                backgroundColor = MaterialTheme.colors.surface,
+                backgroundColor = BeigeColors.onPrimary,
                 modifier = Modifier
                     .aspectRatio(1f)
-                    .padding(vertical = 4.dp),
+                    .padding(4.dp),
                 elevation = 2.dp)
             {
                 androidx.compose.material3.IconButton(
