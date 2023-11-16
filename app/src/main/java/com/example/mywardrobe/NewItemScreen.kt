@@ -114,11 +114,6 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                     }
                 }
             }
-            // Boutons pour ajouter des photos, scanner, etc.
-            OutlinedButton(onClick = { /* TODO */ }) {
-                Text("Ajouter photos")
-            }
-            // ... autres boutons
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -139,9 +134,6 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //ClothesImageRow()
-            //PhotoPickerCard()
-
             // Bouton pour sauvegarder
             Button(
                 onClick = { /* TODO: Save the item */ },
@@ -153,108 +145,6 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
     }
 }
 
-@Composable
-fun PhotoPickerDemoScreen() {
-    //The URI of the photo that the user has picked
-    var photoUri: Uri? by remember { mutableStateOf(null) }
-
-    //The launcher we will use for the PickVisualMedia contract.
-    //When .launch()ed, this will display the photo picker.
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        //When the user has selected a photo, its URI is returned here
-        photoUri = uri
-    }
-
-
-    Column {
-        Button(
-            onClick = {
-                //On button press, launch the photo picker
-                launcher.launch(
-                    PickVisualMediaRequest(
-                    //Here we request only photos. Change this to .ImageAndVideo if you want videos too.
-                    //Or use .VideoOnly if you only want videos.
-                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-                )
-                )
-            }
-        ) {
-            Text("Select Photo")
-        }
-
-        if (photoUri != null) {
-            //Use Coil to display the selected image
-            val painter = rememberAsyncImagePainter(
-                ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(data = photoUri)
-                    .build()
-            )
-
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(5.dp)
-                    .fillMaxWidth()
-                    .border(6.0.dp, Color.Gray),
-                contentScale = ContentScale.Crop
-            )
-        }
-    }
-}
-
-@Composable
-fun PhotoPickerCard() {
-    //The URI of the photo that the user has picked
-    var photoUri: Uri? by remember { mutableStateOf(null) }
-
-    //The launcher we will use for the PickVisualMedia contract.
-    //When .launch()ed, this will display the photo picker.
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        //When the user has selected a photo, its URI is returned here
-        photoUri = uri
-    }
-
-    Card(backgroundColor = MaterialTheme.colors.secondaryVariant,
-        modifier = Modifier
-            .aspectRatio(1f)
-            .padding(8.dp),
-        elevation = 2.dp)
-    {
-        androidx.compose.material3.IconButton(
-            onClick = {
-                //On button press, launch the photo picker
-                launcher.launch(
-                    PickVisualMediaRequest(
-                        //Here we request only photos. Change this to .ImageAndVideo if you want videos too.
-                        //Or use .VideoOnly if you only want videos.
-                        mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-                    )
-                )}
-        ) {
-            Icon(painterResource(id = R.drawable.baseline_add_photo_alternate_24), contentDescription = "Prendre une photo")
-        }
-        if (photoUri != null) {
-            //Use Coil to display the selected image
-            val painter = rememberAsyncImagePainter(
-                ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(data = photoUri)
-                    .build()
-            )
-
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(5.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Inside
-            )
-        }
-    }
-}
 @Composable
 fun ClothesImageRow() {
     var imageUris by remember {
