@@ -1,12 +1,5 @@
 package com.example.mywardrobe
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.location.Address
-import android.location.Geocoder
-import android.location.Location
-import android.net.ConnectivityManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -14,8 +7,7 @@ import androidx.activity.viewModels
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.mywardrobe.data.Brand
-import com.example.mywardrobe.data.BrandManager
+import com.example.mywardrobe.data.*
 import com.example.mywardrobe.viewmodels.CatalogViewModel
 import com.example.mywardrobe.viewmodels.WeatherViewModel
 import com.google.android.gms.location.*
@@ -34,8 +26,11 @@ class MainActivity : AppCompatActivity() {
         // Initialisez la liste des marques au démarrage de l'application
         BrandManager.initializeBrands()
         BrandManager.loadBrands(this)
+        StoragePlaceManager.initializeStoragePlaces()
+        StoragePlaceManager.loadStoragePlaces(this)
 
-        viewModel.saveClotheItem(ClotheItem(R.drawable.chemise_blanche, emptyList<Int>(),"Chemise blanche élégante", ClotheType.TOPS, "XL", Brand("H&M"), "Armoire dressing"))
+        viewModel.saveClotheItem(ClotheItem(R.drawable.chemise_blanche, emptyList<Int>(),"Chemise blanche élégante",
+            findCategoryByName(clothingCategories,"Chemises")!!, "XL", Brand("H&M"), StoragePlace("Armoire", R.drawable.wardrobe_icon)))
 
         setContent {
             val navController = rememberNavController()

@@ -9,6 +9,8 @@ import com.example.mywardrobe.ClotheItem
 import com.example.mywardrobe.ClotheType
 import com.example.mywardrobe.R
 import com.example.mywardrobe.data.Brand
+import com.example.mywardrobe.data.ClothingCategory
+import com.example.mywardrobe.data.StoragePlace
 
 class CatalogViewModel: ViewModel() {
     private val _clotheItems = mutableStateListOf<ClotheItem>()
@@ -18,14 +20,14 @@ class CatalogViewModel: ViewModel() {
     var isDialogOpen by mutableStateOf(false)
 
     // État pour gérer les données du nouvel objet ClotheItem
-    var newClotheItem by mutableStateOf(ClotheItem(R.drawable.placeholder_image, emptyList<Int>(), "", ClotheType.OTHER, "", Brand(""), ""))
+    var newClotheItem by mutableStateOf(ClotheItem(R.drawable.placeholder_image, emptyList<Int>(), "", ClothingCategory(""), "", Brand(""), StoragePlace("", R.drawable.wardrobe_icon)))
         private set
 
     // Fonction pour ouvrir la boîte de dialogue
     fun openDialog() {
         isDialogOpen = true
         // Réinitialisez les données du nouvel objet ClotheItem si nécessaire
-        newClotheItem = ClotheItem(R.drawable.placeholder_image, emptyList<Int>(),"", ClotheType.OTHER, "", Brand(""), "")
+        newClotheItem = ClotheItem(R.drawable.placeholder_image, emptyList<Int>(),"", ClothingCategory(""), "", Brand(""), StoragePlace("", R.drawable.wardrobe_icon))
     }
 
     fun updateNewClotheItem(item: ClotheItem) {

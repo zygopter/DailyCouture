@@ -153,15 +153,6 @@ fun WardrobeScreen(viewModel: CatalogViewModel, navController: NavHostController
             else if (selectedTabIndex == 1) {
                 OutfitsContent()
             }
-
-            if (viewModel.isDialogOpen) {
-                CreateClotheItemDialog(
-                    clotheItem = viewModel.newClotheItem,
-                    onClotheItemChanged = viewModel::updateNewClotheItem,
-                    onDialogDismiss = { viewModel.isDialogOpen = false },
-                    onSaveClick = viewModel::saveClotheItem
-                )
-            }
         }
 
     }
@@ -222,7 +213,7 @@ fun ClotheItemCard(clotheItem: ClotheItem, onClotheItemClick: (ClotheItem) -> Un
 
             // Affichez le type du vêtement
             Text(
-                text = clotheItem.type.name,
+                text = clotheItem.category.name,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(4.dp)
             )
@@ -233,189 +224,6 @@ fun ClotheItemCard(clotheItem: ClotheItem, onClotheItemClick: (ClotheItem) -> Un
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(4.dp)
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-fun CreateClotheItemDialog(
-    clotheItem: ClotheItem,
-    onClotheItemChanged: (ClotheItem) -> Unit,
-    onDialogDismiss: () -> Unit,
-    onSaveClick: (ClotheItem) -> Unit
-) {
-    Dialog(
-        onDismissRequest = { onDialogDismiss() }
-    ) {
-        var itemName by remember { mutableStateOf(clotheItem.title) }
-        var itemType by remember { mutableStateOf(clotheItem.type) }
-        var itemSize by remember { mutableStateOf(clotheItem.size) }
-        var itemBrand by remember { mutableStateOf(clotheItem.brand) }
-        // Liste des types de vêtements pour le menu déroulant
-        val clotheTypes = ClotheType.values().toList()
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(450.dp)
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            // Contenu de la boîte de dialogue pour créer un nouvel objet ClotheItem
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                OutlinedTextField(
-                    value = itemName,
-                    onValueChange = {
-                        itemName = it
-                        onClotheItemChanged(clotheItem.copy(title = it))
-                    },
-                    label = { Text("Nom du vêtement") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
-
-                Row(
-                    Modifier
-                        .background(
-                            color = Color.Transparent,
-                            RoundedCornerShape(
-                                8.dp
-                            )
-                        )
-                        .border(1.dp, Color.Blue, RoundedCornerShape(10.dp))
-                        .padding(
-                            end = 8.dp
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    var expanded by remember { mutableStateOf(false) }
-                    var selectedIndex by remember { mutableStateOf(0) }
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(
-                                Icons.Outlined.Check,
-                                contentDescription = null
-                            )
-                        },
-                        text = {
-                            Text(
-                                clotheTypes[selectedIndex].name,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Black
-                            )
-                        },
-                        onClick = { expanded = true },
-                        trailingIcon = {
-                            Icon(
-                                imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                                contentDescription = "",
-                                modifier = Modifier.background(
-                                    colorResource(id = R.color.white),
-                                    shape = CircleShape
-                                )
-                            )
-                        }
-                    )
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = {
-                            println("Dismiss requested")
-                            expanded = false
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surface)
-                            .padding(8.dp)
-                    ) {
-                        clotheTypes.forEachIndexed { index, s ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    println("Item clicked: $s")
-                                    selectedIndex = index
-                                    expanded = false
-                                    itemType = s
-                                },
-                                text = {
-                                    Text(
-                                        clotheTypes[index].name,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Color.Black
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-
-                OutlinedTextField(
-                    value = itemSize,
-                    onValueChange = {
-                        itemSize = it
-                        onClotheItemChanged(clotheItem.copy(size = it))
-                    },
-                    label = { Text("Taille du vêtement") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
-
-                OutlinedTextField(
-                    value = itemBrand.name,
-                    onValueChange = {
-                        itemBrand = Brand(it)
-                        onClotheItemChanged(clotheItem.copy(brand = Brand(it)))
-                    },
-                    label = { Text("Marque du vêtement") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Bouton "Annuler"
-                    Button(
-                        onClick = {
-                            onDialogDismiss()
-                        },
-                        modifier = Modifier.padding(top = 16.dp)
-                    ) {
-                        Text(text = "Annuler")
-                    }
-                    // Bouton pour enregistrer le nouvel objet ClotheItem
-                    Button(
-                        onClick = {
-                            val updatedClotheItem = ClotheItem(
-                                pictures = emptyList<Int>(),
-                                pictureRes = R.drawable.placeholder_image,
-                                title = itemName,
-                                type = itemType,
-                                size = itemSize,
-                                brand = itemBrand,
-                                storedPlace = ""
-                            )
-                            onSaveClick(updatedClotheItem)
-                            onDialogDismiss()
-                        },
-                        modifier = Modifier.padding(top = 16.dp)
-                    ) {
-                        Text(text = "Enregistrer")
-                    }
-                }
-            }
         }
     }
 }

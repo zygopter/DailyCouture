@@ -36,11 +36,10 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.compose.rememberImagePainter
-import com.example.mywardrobe.components.BeigeColors
-import com.example.mywardrobe.components.ExpandableListSelector
-import com.example.mywardrobe.components.GridImage
-import com.example.mywardrobe.components.LinkText
+import com.example.mywardrobe.components.*
 import com.example.mywardrobe.data.BrandManager
+import com.example.mywardrobe.data.StoragePlaceManager
+import com.example.mywardrobe.data.sizeHierarchy
 import com.example.mywardrobe.viewmodels.CatalogViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,17 +119,35 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
             // Champs de formulaire
             TextField(
                 value = itemName,
+                modifier = Modifier.fillMaxWidth(),
                 onValueChange = { itemName = it },
                 label = { Text("Name") }
             )
+            TextField(
+                value = itemCategory,
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = { itemCategory = it },
+                label = { Text("Category") }
+            )
+            DropdownMenuListSelector(
+                items = sizeHierarchy,
+                onItemSelected = { itemSize = it},
+                onAddItem = {},
+                "Choisir une taille"
+            )
+            ExpandableListWithIconSelector(items = StoragePlaceManager.getStoragePlacesAsMap(),
+                onItemSelected = { itemBrand = it },
+                onAddItem = { newStoragePlace ->
+                    StoragePlaceManager.addStoragePlaces(context, newStoragePlace)
+                },
+                label = "Storage place" )
             ExpandableListSelector(items = BrandManager.getBrandsString(),
                 onItemSelected = { itemBrand = it },
                 onAddItem = { newBrand ->
                     BrandManager.addBrand(context, newBrand)
-                    // Ici, sauvegardez la liste mise à jour
                 },
                 label = "Brand" )
-            // ... autres champs de formulaire
+
 
             Spacer(modifier = Modifier.height(16.dp))
 

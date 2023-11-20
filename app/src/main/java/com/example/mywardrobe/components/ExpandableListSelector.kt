@@ -15,8 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.example.mywardrobe.R
 
 @Composable
 fun ExpandableListSelectorOld(
@@ -121,12 +123,14 @@ fun ExpandableListSelector(items: List<String>,
     // box
     ExposedDropdownMenuBox(
         expanded = expanded,
+        modifier = Modifier.fillMaxWidth(),
         onExpandedChange = {
             expanded = !expanded
         }
     ) {
         TextField(
             value = selectedItem,
+            modifier = Modifier.fillMaxWidth(),
             onValueChange = { selectedItem = it },
             label = { Text(label) },
             trailingIcon = {
@@ -168,6 +172,89 @@ fun ExpandableListSelector(items: List<String>,
                         }
                     ) {
                         Text(text = selectionOption)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@ExperimentalMaterial3Api
+@Composable
+fun ExpandableListWithIconSelector(items: Map<String,Int>,
+                           onItemSelected: (String) -> Unit,
+                           onAddItem: (String) -> Unit,
+                           label: String) {
+    val contextForToast = LocalContext.current.applicationContext
+
+    // state of the menu
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+
+    // remember the selected item
+    var selectedItem by remember {
+        mutableStateOf("")
+    }
+
+    // box
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        modifier = Modifier.fillMaxWidth(),
+        onExpandedChange = {
+            expanded = !expanded
+        }
+    ) {
+        TextField(
+            value = selectedItem,
+            modifier = Modifier.fillMaxWidth(),
+            onValueChange = { selectedItem = it },
+            label = { Text(label) },
+            leadingIcon = {
+                Icon(painter = painterResource(id = R.drawable.wardrobe_icon), contentDescription = "Storage icon",
+                    modifier = Modifier.size(24.dp))
+            },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded
+                )
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors()
+        )
+
+        // filter options based on text field value
+        val filteringOptions =
+            items.filter { it.key.contains(selectedItem, ignoreCase = true) }
+
+        if (filteringOptions.isNotEmpty()) {
+            // menu
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(onClick = {
+                    expanded = false
+                    onAddItem(selectedItem)
+                    //textFieldValue = "..."
+                }) {
+                    Text("Add $selectedItem")
+                }
+                Divider()
+                // this is a column scope
+                // all the items are added vertically
+                filteringOptions.forEach { selectionOption ->
+                    // menu item
+                    DropdownMenuItem(
+                        onClick = {
+                            selectedItem = selectionOption.key
+                            onItemSelected(selectedItem)
+                            Toast.makeText(contextForToast, selectedItem, Toast.LENGTH_SHORT).show()
+                            expanded = false
+                        }
+                    ) {
+                        Icon(painter = painterResource(id = selectionOption.value), contentDescription = "Storage icon")
+                        Text(text = selectionOption.key)
                     }
                 }
             }
