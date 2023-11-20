@@ -1,45 +1,32 @@
 package com.example.mywardrobe
 
-import android.app.Activity
-import android.content.Intent
-import android.graphics.drawable.Icon
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import coil.compose.rememberImagePainter
 import com.example.mywardrobe.components.*
-import com.example.mywardrobe.data.BrandManager
-import com.example.mywardrobe.data.StoragePlaceManager
-import com.example.mywardrobe.data.sizeHierarchy
+import com.example.mywardrobe.data.*
 import com.example.mywardrobe.viewmodels.CatalogViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,13 +110,12 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                 onValueChange = { itemName = it },
                 label = { Text("Name") }
             )
-            TextField(
-                value = itemCategory,
-                modifier = Modifier.fillMaxWidth(),
-                onValueChange = { itemCategory = it },
-                label = { Text("Category") }
+            ClothingCategorySelector(items = getAllCategories(clothingCategories),
+                onItemSelected = { itemCategory = it},
+                onAddItem = {},
+                label = "Choisir une catégorie"
             )
-            DropdownMenuListSelector(
+            SizeCategorySelector(
                 items = sizeHierarchy,
                 onItemSelected = { itemSize = it},
                 onAddItem = {},
@@ -147,7 +133,6 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                     BrandManager.addBrand(context, newBrand)
                 },
                 label = "Brand" )
-
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -180,7 +165,9 @@ fun ClothesImageRow() {
         }
     }
 
-    LazyRow(modifier = Modifier.padding(8.dp).height(200.dp)) {
+    LazyRow(modifier = Modifier
+        .padding(8.dp)
+        .height(200.dp)) {
         items(imageUris) { imageUri ->
             val painter = rememberAsyncImagePainter(
                 ImageRequest
