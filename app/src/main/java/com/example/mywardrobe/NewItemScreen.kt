@@ -58,7 +58,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
         },
         bottomBar = { /* ... Bottom Navigation ... */ }
     ) {
-        Column(modifier = Modifier.padding(16.dp)
+        Column(modifier = Modifier.padding(8.dp)
             .clickable {
             focusManager.clearFocus()
         }) {
