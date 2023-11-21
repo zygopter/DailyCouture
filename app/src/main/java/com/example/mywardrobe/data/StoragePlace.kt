@@ -14,10 +14,10 @@ object StoragePlaceManager {
     fun initializeStoragePlaces() {
         Log.w("StoragePlaceManager", "In init method")
         // Liste hardcodée de storage
-        val storagePlaceSamples = mapOf<String,Int>("Armoire" to R.drawable.wardrobe_icon,
-        "Armoire carrée" to R.drawable.closet_icon,
-        "Commode" to R.drawable.drawer_furniture,
-        "Penderie" to R.drawable.dressing)
+        val storagePlaceSamples = mapOf<String,Int>("Armoire" to R.drawable.ic_armoire,
+        "Armoire carrée" to R.drawable.ic_closet,
+        "Commode" to R.drawable.ic_drawer,
+        "Penderie" to R.drawable.ic_dressing)
         storagePlaces.addAll(storagePlaceSamples.map { StoragePlace(it.key,it.value) })
     }
 
@@ -34,11 +34,13 @@ object StoragePlaceManager {
 
     fun getStoragePlaces() = storagePlaces.toList() // Retourner une copie immuable de la liste
     fun getStoragePlacesAsMap(): Map<String,Int> {
-        val storagePlacesAsMap = emptyMap<String,Int>()
+        val storagePlacesAsMap = emptyMap<String,Int>().toMutableMap()
         storagePlaces.forEach { it ->
-            storagePlacesAsMap.plus(Pair(it.name,it.iconResource))
+            println("filling storagePlacesAsMap with ${it.name}")
+            //storagePlacesAsMap.plus(Pair(it.name,it.iconResource))
+            storagePlacesAsMap[it.name] = it.iconResource
         }
-        return storagePlacesAsMap
+        return storagePlacesAsMap.toMap()
     }
     fun getStoragePlacesString() = storagePlaces.map { it.name }.toList()
 

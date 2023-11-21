@@ -20,86 +20,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.mywardrobe.R
 
-@Composable
-fun ExpandableListSelectorOld(
-    items: List<String>,
-    onItemSelected: (String) -> Unit,
-    onAddItem: (String) -> Unit,
-    label: String,
-    addLabel: String = "Add new..."
-) {
-    var expanded by remember { mutableStateOf(false) }
-    var textFieldValue by remember { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-
-    //Column {
-        OutlinedTextField(
-            value = textFieldValue,
-            onValueChange = {
-                expanded = it.isNotBlank()
-                textFieldValue = it },
-            label = { Text(label) },
-            modifier = Modifier.fillMaxWidth()
-                .onFocusChanged { focusState ->
-                    expanded = focusState.isFocused && textFieldValue.isNotBlank()
-                },
-            trailingIcon = {
-                Icon(
-                    Icons.Default.ArrowDropDown,
-                    contentDescription = "Dropdown",
-                    Modifier.clickable { expanded = !expanded }
-                )
-            },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = {
-                focusManager.clearFocus() // Cache le clavier quand l'utilisateur confirme avec 'Done'
-                expanded = false
-            })
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth().height(200.dp)
-        ) {
-            /*Column(modifier = Modifier.verticalScroll(rememberScrollState()).height(200.dp)) {
-                items.forEach { item ->
-                    DropdownMenuItem(onClick = {
-                        onItemSelected(item)
-                        expanded = false
-                        textFieldValue = item // Set the text field value to the selected item
-                    }) {
-                        Text(text = item)
-                    }
-                }
-                DropdownMenuItem(onClick = {
-                    onAddItem(textFieldValue)
-                    expanded = false
-                    //textFieldValue = "" // Clear the text field after adding the item
-                }) {
-                    Text(text = "Add '$textFieldValue'")
-                }
-            }*/
-            DropdownMenuItem(onClick = {
-                expanded = false
-                onAddItem(textFieldValue)
-            }) {
-                Text("Add $textFieldValue")
-            }
-            Divider()
-            items.forEach { item ->
-                DropdownMenuItem(onClick = {
-                    onItemSelected(item)
-                    expanded = false
-                    textFieldValue = item
-                }) {
-                    Log.w("Expandable list", "Item: $item")
-                    Text(item)
-                }
-            }
-        }
-    //}
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @ExperimentalMaterial3Api
 @Composable
@@ -185,8 +105,6 @@ fun ExpandableListWithIconSelector(items: Map<String,Int>,
                            onItemSelected: (String) -> Unit,
                            onAddItem: (String) -> Unit,
                            label: String) {
-    val contextForToast = LocalContext.current.applicationContext
-
     // state of the menu
     var expanded by remember {
         mutableStateOf(false)
@@ -196,6 +114,11 @@ fun ExpandableListWithIconSelector(items: Map<String,Int>,
     var selectedItem by remember {
         mutableStateOf("")
     }
+    val selectedIcon by remember {
+        mutableStateOf(R.drawable.ic_armoire)
+    }
+
+    items.forEach { println("${it.key}") }
 
     // box
     ExposedDropdownMenuBox(
@@ -211,8 +134,7 @@ fun ExpandableListWithIconSelector(items: Map<String,Int>,
             onValueChange = { selectedItem = it },
             label = { Text(label) },
             leadingIcon = {
-                Icon(painter = painterResource(id = R.drawable.wardrobe_icon), contentDescription = "Storage icon",
-                    modifier = Modifier.size(24.dp))
+                Icon(painter = painterResource(id = selectedIcon), contentDescription = "Storage icon")
             },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
@@ -226,29 +148,41 @@ fun ExpandableListWithIconSelector(items: Map<String,Int>,
         val filteringOptions =
             items.filter { it.key.contains(selectedItem, ignoreCase = true) }
 
-        if (filteringOptions.isNotEmpty()) {
-            // menu
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(onClick = {
-                    expanded = false
-                    onAddItem(selectedItem)
-                    //textFieldValue = "..."
-                }) {
-                    Text("Add $selectedItem")
-                }
-                Divider()
-                // this is a column scope
-                // all the items are added vertically
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(onClick = {
+                expanded = false
+                onAddItem(selectedItem)
+            }) {
+                Text("Add $selectedItem")
+            }
+            Divider()
+            // this is a column scope
+            // all the items are added vertically
+            if (filteringOptions.isNotEmpty()) {
                 filteringOptions.forEach { selectionOption ->
                     // menu item
                     DropdownMenuItem(
                         onClick = {
                             selectedItem = selectionOption.key
                             onItemSelected(selectedItem)
-                            Toast.makeText(contextForToast, selectedItem, Toast.LENGTH_SHORT).show()
+                            expanded = false
+                        }
+                    ) {
+                        Icon(painter = painterResource(id = selectionOption.value), contentDescription = "Storage icon",
+                            modifier = Modifier.padding(end = 16.dp))
+                        Text(text = selectionOption.key)
+                    }
+                }
+            } else {
+                items.forEach { selectionOption ->
+                    // menu item
+                    DropdownMenuItem(
+                        onClick = {
+                            selectedItem = selectionOption.key
+                            onItemSelected(selectedItem)
                             expanded = false
                         }
                     ) {
