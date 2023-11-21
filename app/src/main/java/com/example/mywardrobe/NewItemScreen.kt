@@ -124,7 +124,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                 }
                 item {
                     HierarchicalDropdownMenu(categories = clothingCategories,
-                        onCategorySelected = { itemCategory = it}
+                        onCategorySelected = { itemClothingCategory = it}
                     )
                     SizeCategorySelector(
                         items = sizeHierarchy,

@@ -6,6 +6,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.example.mywardrobe.data.ClothingCategory
 import com.example.mywardrobe.data.ClothingCategoryNode
 import com.example.mywardrobe.data.Size
 import com.example.mywardrobe.data.SizeCategory
@@ -141,14 +142,26 @@ fun flattenCategories(categories: List<ClothingCategoryNode>, indent: String = "
     }
     return flattened
 }
+fun flattenClothingCategories(categories: List<ClothingCategoryNode>, path: String = "/", indent: String = ""): List<ClothingCategory> {
+    val flattened = mutableListOf<ClothingCategory>()
+    for (category in categories) {
+        val displayName = indent + category.name
+        val fullName = path + category.name
+        flattened.add(ClothingCategory(fullName, displayName))
+        flattened.addAll(flattenClothingCategories(category.subCategories, "$fullName/",
+            "$indent\t\t "
+        ))
+    }
+    return flattened
+}
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HierarchicalDropdownMenu(categories: List<ClothingCategoryNode>, onCategorySelected: (String) -> Unit) {
+fun HierarchicalDropdownMenu(categories: List<ClothingCategoryNode>, onCategorySelected: (ClothingCategory) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
 
     // Créer une structure linéaire avec indentation pour représenter la hiérarchie
-    val flattenedCategories = flattenCategories(categories)
+    val flattenedCategories = flattenClothingCategories(categories)
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -156,7 +169,7 @@ fun HierarchicalDropdownMenu(categories: List<ClothingCategoryNode>, onCategoryS
     ) {
         TextField(
             readOnly = true,
-            value = selectedCategory,
+            value = selectedCategory.split("/").last(),
             onValueChange = { },
             label = { Text("Choisir une catégorie") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(
@@ -168,14 +181,14 @@ fun HierarchicalDropdownMenu(categories: List<ClothingCategoryNode>, onCategoryS
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            flattenedCategories.forEach { (displayName, actualName) ->
+            flattenedCategories.forEach { category ->
                 DropDownMenuItemWithSelectedItem(
-                    name = actualName,
-                    displayName = displayName,
+                    name = category.fullName,
+                    displayName = category.displayName,
                     selectedItemName = selectedCategory,
                     onItemSelected = {
-                        selectedCategory = actualName
-                        onCategorySelected(actualName)
+                        selectedCategory = category.fullName
+                        onCategorySelected(category)
                         expanded = false
                     }
                 )
