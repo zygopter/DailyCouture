@@ -5,15 +5,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,11 +40,13 @@ import com.example.mywardrobe.viewmodels.CatalogViewModel
 @Composable
 fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
     var itemName by remember { mutableStateOf("") }
-    var itemCategory by remember { mutableStateOf("") }
     var itemClothingCategory by remember { mutableStateOf<ClothingCategory>(ClothingCategory("")) }
     var itemSize by remember { mutableStateOf(Size("","")) }
     var itemBrand by remember { mutableStateOf("") }
     var itemLocation by remember { mutableStateOf("") }
+    var imageUris by remember {
+        mutableStateOf(listOf<Uri>())
+    }
     val focusManager = LocalFocusManager.current
 
     // Obtenez le contexte local
@@ -58,10 +64,13 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
         },
         bottomBar = { /* ... Bottom Navigation ... */ }
     ) {
-        Column(modifier = Modifier.padding(8.dp)
-            .clickable {
-            focusManager.clearFocus()
-        }) {
+        Column(modifier = Modifier
+            .padding(8.dp)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }) {
+                focusManager.clearFocus()
+            }) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,7 +98,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    ClothesImageRow()
+                    ClothesImageRow { imageUris = imageUris + it }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -109,9 +118,13 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
             }
 
             LazyColumn(
-                modifier = Modifier.padding(16.dp).fillMaxWidth().weight(1f).clickable {
-                    focusManager.clearFocus()
-                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clickable {
+                        focusManager.clearFocus()
+                    },
                 state = rememberLazyListState()
             ) {
                 item {
@@ -146,7 +159,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Bouton pour sauvegarder
             Button(
@@ -169,7 +182,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
 }
 
 @Composable
-fun ClothesImageRow() {
+fun ClothesImageRow(onUriAdded: (photoUri: Uri) -> Unit) {
     var imageUris by remember {
         mutableStateOf(listOf<Uri>())
     }
@@ -182,6 +195,7 @@ fun ClothesImageRow() {
         //When the user has selected a photo, its URI is returned here
         photoUri = uri
         if (uri != null) {
+            onUriAdded(uri)
             imageUris += uri
         }
     }
@@ -196,21 +210,43 @@ fun ClothesImageRow() {
                     .data(data = imageUri)
                     .build()
             )
-            Card(
-                backgroundColor = BeigeColors.surface,
+            Box(
                 modifier = Modifier
                     .padding(4.dp)
-                    .aspectRatio(1f),
-                elevation = 2.dp
+                    .aspectRatio(1f)
             ) {
-                Image(
-                    painter = painter,
-                    contentDescription = null,
+                Card(
+                    backgroundColor = BeigeColors.surface,
                     modifier = Modifier
+                        .padding(4.dp)
+                        .aspectRatio(1f),
+                    elevation = 2.dp
+                ) {
+                    Image(
+                        painter = painter,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .fillMaxWidth(),
+                        contentScale = ContentScale.Inside
+                    )
+
+                }
+                IconButton(
+                    onClick = {
+                        imageUris = imageUris - imageUri
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(28.dp)
+                        .background(
+                            color = MaterialTheme.colors.secondaryVariant,
+                            shape = CircleShape
+                        )
                         .padding(5.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Inside
-                )
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Supprimer la photo")
+                }
             }
         }
         item {
