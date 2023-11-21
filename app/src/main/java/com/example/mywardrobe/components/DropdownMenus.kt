@@ -2,21 +2,19 @@ package com.example.mywardrobe.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import com.example.mywardrobe.data.ClothingCategory
+import com.example.mywardrobe.data.ClothingCategoryNode
+import com.example.mywardrobe.data.Size
 import com.example.mywardrobe.data.SizeCategory
 
 @OptIn(ExperimentalMaterialApi::class)
 @ExperimentalMaterial3Api
 @Composable
 fun SizeCategorySelector(items: List<SizeCategory>,
-                         onItemSelected: (String) -> Unit,
+                         onItemSelected: (Size) -> Unit,
                          label: String) {
     // state of the menu
     var expanded by remember {
@@ -68,18 +66,9 @@ fun SizeCategorySelector(items: List<SizeCategory>,
                         selectedItemName = selectedItem
                     ) {
                         selectedItem = "$size (${category.name})"
-                        onItemSelected(selectedItem)
+                        onItemSelected(Size(category = category.name, size = size))
                         expanded = false
                     }
-                    /*DropdownMenuItem(
-                        onClick = {
-                            selectedItem = "$size (${category.name})"
-                            onItemSelected(selectedItem)
-                            expanded = false
-                        }
-                    ) {
-                        Text(size)
-                    }*/
                 }
             }
         }
@@ -89,9 +78,9 @@ fun SizeCategorySelector(items: List<SizeCategory>,
 @OptIn(ExperimentalMaterialApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun ClothingCategorySelector(items: List<ClothingCategory>,
-                         onItemSelected: (String) -> Unit,
-                         label: String) {
+fun ClothingCategorySelector(items: List<ClothingCategoryNode>,
+                             onItemSelected: (String) -> Unit,
+                             label: String) {
     // state of the menu
     var expanded by remember {
         mutableStateOf(false)
@@ -143,7 +132,7 @@ fun ClothingCategorySelector(items: List<ClothingCategory>,
     }
 }
 
-fun flattenCategories(categories: List<ClothingCategory>, indent: String = ""): List<Pair<String, String>> {
+fun flattenCategories(categories: List<ClothingCategoryNode>, indent: String = ""): List<Pair<String, String>> {
     val flattened = mutableListOf<Pair<String, String>>()
     for (category in categories) {
         val displayName = indent + category.name
@@ -154,7 +143,7 @@ fun flattenCategories(categories: List<ClothingCategory>, indent: String = ""): 
 }
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HierarchicalDropdownMenu(categories: List<ClothingCategory>, onCategorySelected: (String) -> Unit) {
+fun HierarchicalDropdownMenu(categories: List<ClothingCategoryNode>, onCategorySelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
 
@@ -190,19 +179,6 @@ fun HierarchicalDropdownMenu(categories: List<ClothingCategory>, onCategorySelec
                         expanded = false
                     }
                 )
-                /*DropdownMenuItem(
-                    onClick = {
-                        selectedCategory = actualName
-                        onCategorySelected(actualName)
-                        expanded = false
-                    }
-                ) {
-                    Text(
-                        text = displayName,
-                        fontWeight = if (actualName == selectedCategory) FontWeight.Bold else FontWeight.Normal,
-                        color = if (actualName == selectedCategory) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
-                    )
-                }*/
             }
         }
     }

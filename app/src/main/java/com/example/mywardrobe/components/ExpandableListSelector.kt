@@ -82,7 +82,6 @@ fun ExpandableListSelectorOld(
             DropdownMenuItem(onClick = {
                 expanded = false
                 onAddItem(textFieldValue)
-                //textFieldValue = "..."
             }) {
                 Text("Add $textFieldValue")
             }

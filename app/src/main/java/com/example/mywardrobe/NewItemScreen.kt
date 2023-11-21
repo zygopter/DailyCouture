@@ -7,8 +7,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -16,7 +18,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -36,7 +37,8 @@ import com.example.mywardrobe.viewmodels.CatalogViewModel
 fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
     var itemName by remember { mutableStateOf("") }
     var itemCategory by remember { mutableStateOf("") }
-    var itemSize by remember { mutableStateOf("") }
+    var itemClothingCategory by remember { mutableStateOf<ClothingCategory>(ClothingCategory("")) }
+    var itemSize by remember { mutableStateOf(Size("","")) }
     var itemBrand by remember { mutableStateOf("") }
     var itemLocation by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
@@ -106,41 +108,58 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Champs de formulaire
-            TextField(
-                value = itemName,
-                modifier = Modifier.fillMaxWidth(),
-                onValueChange = { itemName = it },
-                label = { Text("Name") }
-            )
-            HierarchicalDropdownMenu(categories = clothingCategories,
-                onCategorySelected = { itemCategory = it}
-            )
-            SizeCategorySelector(
-                items = sizeHierarchy,
-                onItemSelected = { itemSize = it},
-                "Choisir une taille"
-            )
-            ExpandableListWithIconSelector(items = StoragePlaceManager.getStoragePlacesAsMap(),
-                onItemSelected = { itemLocation = it },
-                onAddItem = { newStoragePlace ->
-                    StoragePlaceManager.addStoragePlaces(context, newStoragePlace)
+            LazyColumn(
+                modifier = Modifier.padding(16.dp).fillMaxWidth().weight(1f).clickable {
+                    focusManager.clearFocus()
                 },
-                label = "Storage place" )
-            ExpandableListSelector(items = BrandManager.getBrandsString(),
-                onItemSelected = { itemBrand = it },
-                onAddItem = { newBrand ->
-                    BrandManager.addBrand(context, newBrand)
-                },
-                label = "Brand" )
+                state = rememberLazyListState()
+            ) {
+                item {
+                    TextField(
+                        value = itemName,
+                        modifier = Modifier.fillMaxWidth(),
+                        onValueChange = { itemName = it },
+                        label = { Text("Name") }
+                    )
+                }
+                item {
+                    HierarchicalDropdownMenu(categories = clothingCategories,
+                        onCategorySelected = { itemCategory = it}
+                    )
+                    SizeCategorySelector(
+                        items = sizeHierarchy,
+                        onItemSelected = { itemSize = it},
+                        "Choisir une taille"
+                    )
+                    ExpandableListWithIconSelector(items = StoragePlaceManager.getStoragePlacesAsMap(),
+                        onItemSelected = { itemLocation = it },
+                        onAddItem = { newStoragePlace ->
+                            StoragePlaceManager.addStoragePlaces(context, newStoragePlace)
+                        },
+                        label = "Storage place" )
+                    ExpandableListSelector(items = BrandManager.getBrandsString(),
+                        onItemSelected = { itemBrand = it },
+                        onAddItem = { newBrand ->
+                            BrandManager.addBrand(context, newBrand)
+                        },
+                        label = "Brand" )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Bouton pour sauvegarder
             Button(
-                onClick = { /* TODO: Save the item */ },
+                onClick = {
+                    val newClotheItem = ClotheItem(R.drawable.placeholder_image,
+                    pictures = emptyList(),
+                    title = itemName,
+                    category = itemClothingCategory,
+                    size = itemSize,
+                    brand = itemBrand,
+                    storedPlace = itemLocation)
+                    viewModel.saveClotheItem(newClotheItem)
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("SAVE")

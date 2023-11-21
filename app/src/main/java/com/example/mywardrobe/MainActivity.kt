@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         StoragePlaceManager.loadStoragePlaces(this)
 
         viewModel.saveClotheItem(ClotheItem(R.drawable.chemise_blanche, emptyList<Int>(),"Chemise blanche élégante",
-            findCategoryByName(clothingCategories,"Chemises")!!, "XL", Brand("H&M"), StoragePlace("Armoire", R.drawable.wardrobe_icon)))
+            ClothingCategory("Chemises"), Size("Vêtements","XL"),"H&M", "Armoire"))
 
         setContent {
             val navController = rememberNavController()

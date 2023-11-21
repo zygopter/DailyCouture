@@ -213,7 +213,7 @@ fun ClotheItemCard(clotheItem: ClotheItem, onClotheItemClick: (ClotheItem) -> Un
 
             // Affichez le type du vêtement
             Text(
-                text = clotheItem.category.name,
+                text = clotheItem.category.fullName,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(4.dp)
             )

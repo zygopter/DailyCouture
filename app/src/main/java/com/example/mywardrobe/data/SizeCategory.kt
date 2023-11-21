@@ -1,5 +1,10 @@
 package com.example.mywardrobe.data
 
+data class Size(
+    val category: String,
+    val size: String
+)
+
 data class SizeCategory(
     val name: String,
     val sizes: List<String>

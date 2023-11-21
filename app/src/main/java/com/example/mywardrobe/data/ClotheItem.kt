@@ -1,9 +1,6 @@
 package com.example.mywardrobe
 
-import com.example.mywardrobe.data.Brand
-import com.example.mywardrobe.data.ClothingCategory
-import com.example.mywardrobe.data.SizeCategory
-import com.example.mywardrobe.data.StoragePlace
+import com.example.mywardrobe.data.*
 
 enum class ClotheType(val displayName: String) {
     TOPS("Tops"),
@@ -27,8 +24,8 @@ data class ClotheItem(
     val pictures: List<Int>,
     val title: String,
     val category: ClothingCategory,
-    val size: String,
-    val brand: Brand,
-    val storedPlace: StoragePlace,
+    val size: Size,
+    val brand: String,
+    val storedPlace: String,
     val notes: String = ""
 )
