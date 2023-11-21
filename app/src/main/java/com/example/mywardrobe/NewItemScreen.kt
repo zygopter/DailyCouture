@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,7 +39,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
     var itemSize by remember { mutableStateOf("") }
     var itemBrand by remember { mutableStateOf("") }
     var itemLocation by remember { mutableStateOf("") }
-    var imageList by remember { mutableStateOf(listOf<Painter>()) }
+    val focusManager = LocalFocusManager.current
 
     // Obtenez le contexte local
     val context = LocalContext.current
@@ -54,7 +56,10 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
         },
         bottomBar = { /* ... Bottom Navigation ... */ }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)
+            .clickable {
+            focusManager.clearFocus()
+        }) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -110,19 +115,16 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                 onValueChange = { itemName = it },
                 label = { Text("Name") }
             )
-            ClothingCategorySelector(items = getAllCategories(clothingCategories),
-                onItemSelected = { itemCategory = it},
-                onAddItem = {},
-                label = "Choisir une catégorie"
+            HierarchicalDropdownMenu(categories = clothingCategories,
+                onCategorySelected = { itemCategory = it}
             )
             SizeCategorySelector(
                 items = sizeHierarchy,
                 onItemSelected = { itemSize = it},
-                onAddItem = {},
                 "Choisir une taille"
             )
             ExpandableListWithIconSelector(items = StoragePlaceManager.getStoragePlacesAsMap(),
-                onItemSelected = { itemBrand = it },
+                onItemSelected = { itemLocation = it },
                 onAddItem = { newStoragePlace ->
                     StoragePlaceManager.addStoragePlaces(context, newStoragePlace)
                 },

@@ -12,7 +12,6 @@ val subCategoriesSweats = listOf(
     ClothingCategory("Kimonos"),
     ClothingCategory("Cardigans"),
     ClothingCategory("Boléros"),
-    ClothingCategory("Boléros"),
     ClothingCategory("Autres pull-overs")
 )
 
