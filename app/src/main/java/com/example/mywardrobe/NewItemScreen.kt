@@ -98,7 +98,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    ClothesImageRow { imageUris = imageUris + it }
+                    ClothesImageRow { imageUris = it }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -165,13 +165,14 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
             Button(
                 onClick = {
                     val newClotheItem = ClotheItem(R.drawable.placeholder_image,
-                    pictures = emptyList(),
+                    pictures = imageUris,
                     title = itemName,
                     category = itemClothingCategory,
                     size = itemSize,
                     brand = itemBrand,
                     storedPlace = itemLocation)
                     viewModel.saveClotheItem(newClotheItem)
+                    navController.navigate("wardrobeScreen")
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -182,7 +183,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
 }
 
 @Composable
-fun ClothesImageRow(onUriAdded: (photoUri: Uri) -> Unit) {
+fun ClothesImageRow(onUrisUpdated: (photoUris: List<Uri>) -> Unit) {
     var imageUris by remember {
         mutableStateOf(listOf<Uri>())
     }
@@ -195,8 +196,8 @@ fun ClothesImageRow(onUriAdded: (photoUri: Uri) -> Unit) {
         //When the user has selected a photo, its URI is returned here
         photoUri = uri
         if (uri != null) {
-            onUriAdded(uri)
-            imageUris += uri
+            imageUris = imageUris + uri
+            onUrisUpdated(imageUris)
         }
     }
 
@@ -235,6 +236,7 @@ fun ClothesImageRow(onUriAdded: (photoUri: Uri) -> Unit) {
                 IconButton(
                     onClick = {
                         imageUris = imageUris - imageUri
+                        onUrisUpdated(imageUris)
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)

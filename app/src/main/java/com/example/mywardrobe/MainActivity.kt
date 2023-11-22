@@ -1,5 +1,6 @@
 package com.example.mywardrobe
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -29,8 +30,9 @@ class MainActivity : AppCompatActivity() {
         StoragePlaceManager.initializeStoragePlaces()
         StoragePlaceManager.loadStoragePlaces(this)
 
-        viewModel.saveClotheItem(ClotheItem(R.drawable.chemise_blanche, emptyList<Int>(),"Chemise blanche élégante",
+        viewModel.saveClotheItem(ClotheItem(R.drawable.chemise_blanche, emptyList<Uri>(),"Chemise blanche élégante",
             ClothingCategory("Chemises"), Size("Vêtements","XL"),"H&M", "Armoire"))
+
 
         setContent {
             val navController = rememberNavController()

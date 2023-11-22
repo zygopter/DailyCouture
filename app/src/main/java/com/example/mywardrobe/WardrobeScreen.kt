@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.mywardrobe.components.ClothePicturesRow
 import com.example.mywardrobe.components.WardrobeBottomNavigation
 import com.example.mywardrobe.data.Brand
 import com.example.mywardrobe.viewmodels.CatalogViewModel
@@ -192,14 +193,7 @@ fun ClotheItemCard(clotheItem: ClotheItem, onClotheItemClick: (ClotheItem) -> Un
             modifier = Modifier.padding(16.dp)
         ) {
             // Affichez l'image du vêtement
-            Image(
-                painter = painterResource(id = clotheItem.pictureRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-            )
+            ClothePicturesRow(clotheItem.pictures)
 
             Spacer(modifier = Modifier.height(8.dp))
 

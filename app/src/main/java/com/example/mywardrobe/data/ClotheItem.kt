@@ -1,5 +1,6 @@
 package com.example.mywardrobe
 
+import android.net.Uri
 import com.example.mywardrobe.data.*
 
 enum class ClotheType(val displayName: String) {
@@ -21,7 +22,7 @@ enum class ClotheType(val displayName: String) {
 
 data class ClotheItem(
     val pictureRes: Int,
-    val pictures: List<Int>,
+    val pictures: List<Uri>,
     val title: String,
     val category: ClothingCategory,
     val size: Size,
