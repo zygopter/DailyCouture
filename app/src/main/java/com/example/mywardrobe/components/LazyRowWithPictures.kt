@@ -27,17 +27,18 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.mywardrobe.R
+import java.io.File
 
 @Composable
-fun ClothePicturesRow(pictureUris: List<Uri>) {
+fun ClothePicturesRow(picturePaths: List<String>) {
     LazyRow(modifier = Modifier
         .padding(4.dp)
         .height(140.dp)) {
-        items(pictureUris) { imageUri ->
+        items(picturePaths) { picturePath ->
             val painter = rememberAsyncImagePainter(
                 ImageRequest
                     .Builder(LocalContext.current)
-                    .data(data = imageUri)
+                    .data(data = File(picturePath))
                     .build()
             )
             Card(
@@ -57,7 +58,7 @@ fun ClothePicturesRow(pictureUris: List<Uri>) {
                 )
             }
         }
-        if (pictureUris.isEmpty()) {
+        if (picturePaths.isEmpty()) {
             item {
                 Card(
                     backgroundColor = MaterialTheme.colors.surface,

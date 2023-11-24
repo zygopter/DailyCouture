@@ -1,5 +1,10 @@
 package com.example.mywardrobe
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -33,9 +38,18 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.mywardrobe.components.*
+import com.example.mywardrobe.dao.StoredItemDao
 import com.example.mywardrobe.data.*
+import com.example.mywardrobe.repository.StoredItemRepository
 import com.example.mywardrobe.viewmodels.CatalogViewModel
+import java.io.File
+import java.io.FileOutputStream
+import java.net.URLEncoder
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
@@ -46,6 +60,9 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
     var itemLocation by remember { mutableStateOf("") }
     var imageUris by remember {
         mutableStateOf(listOf<Uri>())
+    }
+    var imagePaths by remember {
+        mutableStateOf(listOf<String>())
     }
     val focusManager = LocalFocusManager.current
 
@@ -98,7 +115,9 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    ClothesImageRow { imageUris = it }
+                    ClothesImageRow { uris ->
+                        imageUris = uris
+                    }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -164,13 +183,17 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
             // Bouton pour sauvegarder
             Button(
                 onClick = {
-                    val newClotheItem = ClotheItem(R.drawable.placeholder_image,
-                    pictures = imageUris,
-                    title = itemName,
-                    category = itemClothingCategory,
-                    size = itemSize,
-                    brand = itemBrand,
-                    storedPlace = itemLocation)
+                    imagePaths = imageUris.map {
+                        storeImage(it, itemName, context)
+                    }
+                    val newClotheItem = ClotheItem(
+                        pictures = imageUris,
+                        picturePaths = imagePaths,
+                        title = itemName,
+                        category = itemClothingCategory,
+                        size = itemSize,
+                        brand = itemBrand,
+                        storedPlace = itemLocation)
                     viewModel.saveClotheItem(newClotheItem)
                     navController.navigate("wardrobeScreen")
                 },
@@ -181,6 +204,7 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
         }
     }
 }
+
 
 @Composable
 fun ClothesImageRow(onUrisUpdated: (photoUris: List<Uri>) -> Unit) {
@@ -278,9 +302,51 @@ fun ClothesImageRow(onUrisUpdated: (photoUris: List<Uri>) -> Unit) {
     }
 }
 
-@Preview
+// Fonction pour compresser et stocker une image
+fun storeImage(imageUri: Uri, name: String, context: Context): String {
+    val inputStream = context.contentResolver.openInputStream(imageUri)
+    val bitmap = BitmapFactory.decodeStream(inputStream)
+
+    // Compresser l'image
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeStream(inputStream, null, options)
+    val originalHeight = options.outHeight
+    val originalWidth = options.outWidth
+    val aspectRatio = originalWidth.toFloat() / originalHeight.toFloat()
+
+    val displayMetrics = Resources.getSystem().displayMetrics
+    val newWidth = displayMetrics.widthPixels
+    val newHeight = (newWidth / aspectRatio).toInt()
+
+    val resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false)
+
+    // Créer un fichier pour stocker l'image
+    val nameEncoded = URLEncoder.encode(createFileNameWithTimestamp(name, "jpg"), "UTF-8").replace("+", "_")
+    val imageFile = File(context.filesDir, nameEncoded)
+    val outputStream = FileOutputStream(imageFile)
+    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 75, outputStream)
+    outputStream.close()
+
+    return imageFile.absolutePath
+}
+
+fun createFileNameWithTimestamp(baseName: String, extension: String): String {
+    val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.getDefault())
+    val timestamp = dateFormat.format(Date())
+    return "${baseName}_${timestamp}.${extension}"
+}
+
+// Lors de la sauvegarde d'un item
+//val imagePath = storeImage(selectedImageUri, context)
+// Stockez imagePath dans la base de données au lieu de l'URI
+
+
+/*@Preview
 @Composable
 fun ComposablePreview() {
     val navController = rememberNavController()
-    NewItemScreen(navController = navController, viewModel = CatalogViewModel())
-}
+    val fakeViewModel = CatalogViewModel(repository = null)
+    NewItemScreen(navController = navController, viewModel = fakeViewModel)
+}*/

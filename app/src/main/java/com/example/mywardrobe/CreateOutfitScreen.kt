@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,6 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.mywardrobe.data.Style
+import com.example.mywardrobe.data.clothingCategories
 
 @Composable
 fun CreateOutfitScreen(navController: NavController) {
@@ -38,11 +39,11 @@ fun CreateOutfitScreen(navController: NavController) {
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
-                ClotheType.values().forEachIndexed { index, title ->
+                clothingCategories.forEachIndexed { index, clothingCategoryNode ->
                     Tab(
                         text = {
-                            Log.w("CreateOutfitScreen", "clothe type value: ${title.displayName}")
-                            Text(title.displayName)
+                            Log.w("CreateOutfitScreen", "clothe type value: ${clothingCategoryNode.name}")
+                            Text(clothingCategoryNode.name)
                         },
                         selectedContentColor = Color.White,
                         unselectedContentColor = Color.LightGray,

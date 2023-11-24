@@ -224,7 +224,7 @@ fun getCurrentLocation(fusedLocationClient: FusedLocationProviderClient, onLocat
     val locationCallback = object : LocationCallback() {
         override fun onLocationResult(p0: LocationResult) {
             p0 ?: return
-            onLocationReceived(p0.lastLocation)
+            p0.lastLocation?.let { onLocationReceived(it) }
             // Arrêtez de demander des mises à jour de la localisation si nécessaire
             fusedLocationClient.removeLocationUpdates(this)
         }

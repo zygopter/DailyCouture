@@ -1,7 +1,5 @@
 package com.example.mywardrobe
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,30 +8,29 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.mywardrobe.components.ClothePicturesRow
 import com.example.mywardrobe.components.WardrobeBottomNavigation
-import com.example.mywardrobe.data.Brand
+import com.example.mywardrobe.data.ClotheItem
+import com.example.mywardrobe.data.Style
+import com.example.mywardrobe.model.StoredItem
 import com.example.mywardrobe.viewmodels.CatalogViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WardrobeScreen(viewModel: CatalogViewModel, navController: NavHostController) {
     var showMenu by remember { mutableStateOf(false) }
+    val storedItems by viewModel.storedItems.observeAsState(initial = emptyList())
 
     Scaffold(
         topBar = {
@@ -143,8 +140,9 @@ fun WardrobeScreen(viewModel: CatalogViewModel, navController: NavHostController
                 SubTabRow()
 
                 LazyColumn(modifier = Modifier.padding(16.dp)) {
-                    items(viewModel.clotheItems) { clotheItem ->
-                        ClotheItemCard(clotheItem = clotheItem, onClotheItemClick = {
+                    items(storedItems) {item ->
+                        // Affichez chaque item ici
+                        StoredItemCard(item, onStoredItemClick = {
                             // Action à effectuer lorsqu'un vêtement est cliqué
                             // Par exemple, ouvrir les détails du vêtement ou ajouter à une tenue
                         })
@@ -193,7 +191,7 @@ fun ClotheItemCard(clotheItem: ClotheItem, onClotheItemClick: (ClotheItem) -> Un
             modifier = Modifier.padding(16.dp)
         ) {
             // Affichez l'image du vêtement
-            ClothePicturesRow(clotheItem.pictures)
+            ClothePicturesRow(clotheItem.picturePaths)
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -215,6 +213,52 @@ fun ClotheItemCard(clotheItem: ClotheItem, onClotheItemClick: (ClotheItem) -> Un
             // Affichez la taille et la marque du vêtement
             Text(
                 text = "Taille: ${clotheItem.size}, Marque: ${clotheItem.brand}",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(4.dp)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StoredItemCard(storedItem: StoredItem, onStoredItemClick: (StoredItem) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onStoredItemClick(storedItem) }, // Gérez le clic sur la carte ici
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp
+        ),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Affichez l'image du vêtement
+            ClothePicturesRow(storedItem.picturePaths)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Affichez le nom du vêtement
+            Text(
+                text = storedItem.title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(4.dp)
+            )
+
+            // Affichez le type du vêtement
+            Text(
+                text = storedItem.category.fullName.split("/").last(),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(4.dp)
+            )
+
+            // Affichez la taille et la marque du vêtement
+            Text(
+                text = "Taille: ${storedItem.size}, Marque: ${storedItem.brand}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(4.dp)
             )
@@ -302,5 +346,6 @@ fun OutfitSearchBar(onFilterSelected: (Style) -> Unit) {
 @Composable
 fun WardrobeScreenPreview() {
     val navController = rememberNavController()
-    WardrobeScreen(viewModel = CatalogViewModel(), navController = navController)
+    //val storedItemDao: StoredItemDao = null
+    //WardrobeScreen(viewModel = CatalogViewModel(StoredItemRepository(storedItemDao)), navController = navController)
 }

@@ -3,7 +3,14 @@ package com.example.mywardrobe.data
 data class Size(
     val category: String,
     val size: String
-)
+) {
+    companion object {
+        fun toSize(sizeString: String): Size {
+            return Size(sizeString.split("/").first(),
+                sizeString.split("/").last())
+        }
+    }
+}
 
 data class SizeCategory(
     val name: String,

@@ -1,30 +1,54 @@
 package com.example.mywardrobe.viewmodels
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.example.mywardrobe.ClotheItem
-import com.example.mywardrobe.R
-import com.example.mywardrobe.data.Brand
-import com.example.mywardrobe.data.ClothingCategory
-import com.example.mywardrobe.data.ClothingCategoryNode
-import com.example.mywardrobe.data.StoragePlace
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.mywardrobe.data.*
+import com.example.mywardrobe.model.StoredItem
+import com.example.mywardrobe.repository.StoredItemRepository
+import kotlinx.coroutines.launch
 
-class CatalogViewModel: ViewModel() {
-    private val _clotheItems = mutableStateListOf<ClotheItem>()
-    val clotheItems: List<ClotheItem> get() = _clotheItems
-
-    // État pour gérer l'ouverture/fermeture de la boîte de dialogue
-    var isDialogOpen by mutableStateOf(false)
+class CatalogViewModel(private val repository: StoredItemRepository): ViewModel() {
+    // LiveData pour observer les changements dans la liste des items
+    val storedItems: LiveData<List<StoredItem>> = repository.getAllItems().asLiveData()
 
     // Fonction pour enregistrer le nouvel objet ClotheItem
     fun saveClotheItem(item: ClotheItem) {
-        // Logique pour enregistrer l'objet ClotheItem dans votre base de données ou votre repository
-        // Réinitialisez la boîte de dialogue après l'enregistrement
         println("in saveClotheItem method")
-        _clotheItems.add(item)
-        isDialogOpen = false
+        val storedItem = StoredItem(pictures = item.pictures,
+            picturePaths = item.picturePaths,
+            title = item.title,
+            category = item.category,
+            size = item.size,
+            brand = item.brand,
+            storedPlace = item.storedPlace
+        )
+        viewModelScope.launch {
+            repository.insertItem(storedItem)
+        }
+    }
+
+    init {
+        loadItems()
+    }
+
+    private fun loadItems() {
+        viewModelScope.launch {
+            repository.getAllItems()
+        }
+    }
+
+}
+
+class CatalogViewModelFactory(private val repository: StoredItemRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CatalogViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return CatalogViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
