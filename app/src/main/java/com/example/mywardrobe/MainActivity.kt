@@ -59,6 +59,18 @@ class MainActivity : AppCompatActivity() {
                 composable("qrCodeScannerScreen") { QRCodeScannerMLKit(navController, onCodeScanned = {}) }
                 composable("createOutfitScreen") { CreateOutfitScreen(navController) }
                 composable("addNewItemScreen") { NewItemScreen(navController = navController, viewModel) }
+                composable("addNewItemScreen/{itemId}") { backStackEntry ->
+                    val itemId = backStackEntry.arguments?.getString("itemId")
+                    println("Navigating to addNewItemScreen with ID = $itemId")
+                    if (itemId == null) {
+                        println("Not navigating to because null")
+                        NewItemScreen(navController, viewModel)
+                    }
+                    else {
+                        println("Navigating to addNewItemScreen with int ID = $itemId")
+                        NewItemScreen(navController, viewModel, itemId)
+                    }
+                }
                 composable("dailyPlannerScreen") { DailyPlannerScreen(navController = navController, weatherViewModel)}
             }
         }

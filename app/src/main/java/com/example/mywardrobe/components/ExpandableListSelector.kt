@@ -24,6 +24,7 @@ import com.example.mywardrobe.R
 @ExperimentalMaterial3Api
 @Composable
 fun ExpandableListSelector(items: List<String>,
+                           preselectedItem: String,
                            onItemSelected: (String) -> Unit,
                            onAddItem: (String) -> Unit,
                            label: String) {
@@ -38,6 +39,7 @@ fun ExpandableListSelector(items: List<String>,
     var selectedItem by remember {
         mutableStateOf("")
     }
+    selectedItem = preselectedItem
 
     // box
     ExposedDropdownMenuBox(
@@ -102,6 +104,7 @@ fun ExpandableListSelector(items: List<String>,
 @ExperimentalMaterial3Api
 @Composable
 fun ExpandableListWithIconSelector(items: Map<String,Int>,
+                                   preselectedItem: String,
                            onItemSelected: (String) -> Unit,
                            onAddItem: (String) -> Unit,
                            label: String) {
@@ -114,11 +117,12 @@ fun ExpandableListWithIconSelector(items: Map<String,Int>,
     var selectedItem by remember {
         mutableStateOf("")
     }
-    val selectedIcon by remember {
+    selectedItem = preselectedItem
+    var selectedIcon by remember {
         mutableStateOf(R.drawable.ic_armoire)
     }
+    selectedIcon = items[selectedItem] ?: R.drawable.ic_armoire
 
-    items.forEach { println("${it.key}") }
 
     // box
     ExposedDropdownMenuBox(

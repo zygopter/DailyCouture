@@ -12,7 +12,6 @@ object StoragePlaceManager {
     private var storagePlaces: MutableList<StoragePlace> = mutableListOf()
 
     fun initializeStoragePlaces() {
-        Log.w("StoragePlaceManager", "In init method")
         // Liste hardcodée de storage
         val storagePlaceSamples = mapOf<String,Int>("Armoire" to R.drawable.ic_armoire,
         "Armoire carrée" to R.drawable.ic_closet,
@@ -36,7 +35,6 @@ object StoragePlaceManager {
     fun getStoragePlacesAsMap(): Map<String,Int> {
         val storagePlacesAsMap = emptyMap<String,Int>().toMutableMap()
         storagePlaces.forEach { it ->
-            println("filling storagePlacesAsMap with ${it.name}")
             //storagePlacesAsMap.plus(Pair(it.name,it.iconResource))
             storagePlacesAsMap[it.name] = it.iconResource
         }

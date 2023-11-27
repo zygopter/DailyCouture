@@ -2,9 +2,11 @@ package com.example.mywardrobe.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.mywardrobe.data.*
 import com.example.mywardrobe.model.StoredItem
@@ -17,7 +19,6 @@ class CatalogViewModel(private val repository: StoredItemRepository): ViewModel(
 
     // Fonction pour enregistrer le nouvel objet ClotheItem
     fun saveClotheItem(item: ClotheItem) {
-        println("in saveClotheItem method")
         val storedItem = StoredItem(pictures = item.pictures,
             picturePaths = item.picturePaths,
             title = item.title,
@@ -28,6 +29,23 @@ class CatalogViewModel(private val repository: StoredItemRepository): ViewModel(
         )
         viewModelScope.launch {
             repository.insertItem(storedItem)
+        }
+    }
+
+    fun getItemByIdWithoutQuery(itemId: String): StoredItem? {
+        storedItems.value?.forEach { item ->
+            if (item.uuid == itemId) return item
+        }
+        return null
+    }
+
+    fun getItemById(itemId: String): LiveData<StoredItem?> = liveData {
+        emitSource(repository.getItemById(itemId).asLiveData())
+    }
+
+    fun updateStoredItem(storedItem: StoredItem) {
+        viewModelScope.launch {
+            repository.updateItem(storedItem)
         }
     }
 

@@ -9,6 +9,9 @@ interface StoredItemDao {
     @Query("SELECT * FROM storedItem")
     fun getAll(): Flow<List<StoredItem>>
 
+    @Query("SELECT * FROM storedItem WHERE storedItem.uuid LIKE :itemId")
+    fun getItemById(itemId: String): Flow<StoredItem?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: StoredItem)
 

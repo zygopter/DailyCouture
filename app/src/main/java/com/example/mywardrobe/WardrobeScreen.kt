@@ -95,7 +95,6 @@ fun WardrobeScreen(viewModel: CatalogViewModel, navController: NavHostController
                     )
                     DropdownMenuItem(onClick = {
                         // Logique pour ajouter un item via scan de code-barres
-                        println("here on qrCodeScannerScreen option")
                         showMenu = false
                         navController.navigate("qrCodeScannerScreen")
                     },
@@ -141,10 +140,8 @@ fun WardrobeScreen(viewModel: CatalogViewModel, navController: NavHostController
 
                 LazyColumn(modifier = Modifier.padding(16.dp)) {
                     items(storedItems) {item ->
-                        // Affichez chaque item ici
                         StoredItemCard(item, onStoredItemClick = {
-                            // Action à effectuer lorsqu'un vêtement est cliqué
-                            // Par exemple, ouvrir les détails du vêtement ou ajouter à une tenue
+                            navController.navigate("addNewItemScreen/${item.uuid}")
                         })
                     }
                 }

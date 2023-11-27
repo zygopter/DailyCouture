@@ -9,10 +9,12 @@ import com.example.mywardrobe.data.ClothingCategory
 import com.example.mywardrobe.data.Size
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.UUID
 
 @Entity
 data class StoredItem(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    //@PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey val uuid: String = UUID.randomUUID().toString(),
     val pictures: List<Uri>,
     val picturePaths: List<String>,
     val title: String,

@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,23 +26,23 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.mywardrobe.components.*
-import com.example.mywardrobe.dao.StoredItemDao
 import com.example.mywardrobe.data.*
-import com.example.mywardrobe.repository.StoredItemRepository
 import com.example.mywardrobe.viewmodels.CatalogViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URLEncoder
@@ -52,154 +53,214 @@ import java.util.Locale
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
+fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel, itemId: String? = null) {
+    val storedItemLiveData = viewModel.getItemById(itemId ?: "")
+    val storedItem by storedItemLiveData.observeAsState()
+    var isLoading by remember { mutableStateOf(true) }
+
     var itemName by remember { mutableStateOf("") }
-    var itemClothingCategory by remember { mutableStateOf<ClothingCategory>(ClothingCategory("")) }
-    var itemSize by remember { mutableStateOf(Size("","")) }
+    var itemClothingCategory by remember { mutableStateOf(ClothingCategory("")) }
+    var itemSize by remember { mutableStateOf(Size("", "")) }
     var itemBrand by remember { mutableStateOf("") }
     var itemLocation by remember { mutableStateOf("") }
-    var imageUris by remember {
-        mutableStateOf(listOf<Uri>())
-    }
+    var imageUris by remember { mutableStateOf(listOf<Uri>()) }
     var imagePaths by remember {
         mutableStateOf(listOf<String>())
     }
+
+    LaunchedEffect(itemId) {
+        // Assurez-vous que l'itemId est non null et lancez une action pour le charger
+        itemId?.let {
+            Log.i("NewItemScreen", "Entering new item screen with preselected item: $itemId")
+            viewModel.getItemById(it)
+        }
+    }
+    LaunchedEffect(storedItem) {
+        isLoading = true
+        itemName = storedItem?.title ?: ""
+        itemClothingCategory = storedItem?.category ?: ClothingCategory("")
+        itemSize = storedItem?.size ?: Size("", "")
+        itemBrand = storedItem?.brand ?: ""
+        itemLocation = storedItem?.storedPlace ?: ""
+        imageUris = storedItem?.pictures ?: listOf()
+        imagePaths = storedItem?.picturePaths ?: listOf()
+
+        isLoading = false
+    }
+
     val focusManager = LocalFocusManager.current
 
     // Obtenez le contexte local
     val context = LocalContext.current
 
-    Scaffold(
-        topBar = {
-            TopAppBar(elevation = 4.dp,
-                title = { Text("Add new item")},
-                navigationIcon = {
-                    IconButton(onClick = {navController.popBackStack()}) {
-                        Icon(Icons.Filled.Close, null)
+    if (isLoading) {
+        CircularProgressIndicator() // Affiche un indicateur de chargement
+    } else {
+        Scaffold(
+            topBar = {
+                TopAppBar(elevation = 4.dp,
+                    title = { Text("Add new item") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Filled.Close, null)
+                        }
+                    })
+            },
+            bottomBar = { /* ... Bottom Navigation ... */ }
+        ) {
+            Column(modifier = Modifier
+                .padding(8.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }) {
+                    focusManager.clearFocus()
+                }) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    elevation = 2.dp
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Ajouter jusqu'à 10 photos. ",
+                                style = MaterialTheme.typography.caption
+                            )
+                            LinkText(
+                                linkText = "Comment prendre mes photos?",
+                                url = "https://www.colorclipping.com/fr/blog/take-pictures-of-clothes-without-mannequin"
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        ClothesImageRow(imagePaths) { uris ->
+                            imageUris = uris
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            IconButton(onClick = { /* TODO: Ajouter photo avec l'appareil photo */ }) {
+                                Icon(
+                                    painterResource(id = R.drawable.baseline_add_photo_alternate_24),
+                                    contentDescription = "Prendre une photo"
+                                )
+                            }
+                            IconButton(onClick = { /* TODO: Sélectionner une photo depuis la galerie */ }) {
+                                Icon(
+                                    painterResource(id = R.drawable.baseline_qr_code_24),
+                                    contentDescription = "Sélectionner depuis la galerie"
+                                )
+                            }
+                            IconButton(onClick = { /* TODO: Ajouter un espace réservé pour la photo */ }) {
+                                Icon(
+                                    painterResource(id = R.drawable.global_search_icon_243457),
+                                    contentDescription = "Ajouter un espace réservé"
+                                )
+                            }
+                        }
                     }
-                })
-        },
-        bottomBar = { /* ... Bottom Navigation ... */ }
-    ) {
-        Column(modifier = Modifier
-            .padding(8.dp)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }) {
-                focusManager.clearFocus()
-            }) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                elevation = 2.dp
-            ) {
-                Column(
+                }
+
+                LazyColumn(
                     modifier = Modifier
                         .padding(16.dp)
                         .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
+                        .weight(1f)
+                        .clickable {
+                            focusManager.clearFocus()
+                        },
+                    state = rememberLazyListState()
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Ajouter jusqu'à 10 photos. ",
-                            style = MaterialTheme.typography.caption
-                        )
-                        LinkText(
-                            linkText = "Comment prendre mes photos?",
-                            url = "https://www.colorclipping.com/fr/blog/take-pictures-of-clothes-without-mannequin"
+                    item {
+                        TextField(
+                            value = itemName,
+                            modifier = Modifier.fillMaxWidth(),
+                            onValueChange = { itemName = it },
+                            label = { Text("Name") }
                         )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    ClothesImageRow { uris ->
-                        imageUris = uris
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        IconButton(onClick = { /* TODO: Ajouter photo avec l'appareil photo */ }) {
-                            Icon(painterResource(id = R.drawable.baseline_add_photo_alternate_24), contentDescription = "Prendre une photo")
-                        }
-                        IconButton(onClick = { /* TODO: Sélectionner une photo depuis la galerie */ }) {
-                            Icon(painterResource(id = R.drawable.baseline_qr_code_24), contentDescription = "Sélectionner depuis la galerie")
-                        }
-                        IconButton(onClick = { /* TODO: Ajouter un espace réservé pour la photo */ }) {
-                            Icon(painterResource(id = R.drawable.global_search_icon_243457), contentDescription = "Ajouter un espace réservé")
-                        }
+                    item {
+                        HierarchicalDropdownMenu(categories = clothingCategories,
+                            itemClothingCategory,
+                            onCategorySelected = { itemClothingCategory = it }
+                        )
+                        SizeCategorySelector(
+                            items = sizeHierarchy,
+                            itemSize,
+                            onItemSelected = { itemSize = it },
+                            "Choisir une taille"
+                        )
+                        ExpandableListWithIconSelector(
+                            items = StoragePlaceManager.getStoragePlacesAsMap(),
+                            preselectedItem = itemLocation,
+                            onItemSelected = { itemLocation = it },
+                            onAddItem = { newStoragePlace ->
+                                StoragePlaceManager.addStoragePlaces(context, newStoragePlace)
+                            },
+                            label = "Storage place"
+                        )
+                        ExpandableListSelector(
+                            items = BrandManager.getBrandsString(),
+                            preselectedItem = itemBrand,
+                            onItemSelected = { itemBrand = it },
+                            onAddItem = { newBrand ->
+                                BrandManager.addBrand(context, newBrand)
+                            },
+                            label = "Brand"
+                        )
                     }
                 }
-            }
 
-            LazyColumn(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clickable {
-                        focusManager.clearFocus()
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Bouton pour sauvegarder
+                Button(
+                    onClick = {
+                        imagePaths = imageUris.map {
+                            storeImage(it, itemName, context)
+                        }
+                        if (storedItem == null) {
+                            val newClotheItem = ClotheItem(
+                                pictures = imageUris,
+                                picturePaths = imagePaths,
+                                title = itemName,
+                                category = itemClothingCategory,
+                                size = itemSize,
+                                brand = itemBrand,
+                                storedPlace = itemLocation
+                            )
+                            viewModel.saveClotheItem(newClotheItem)
+                        } else {
+                            // Mise à jour de l'item existant
+                            viewModel.updateStoredItem(
+                                storedItem!!.copy(
+                                    pictures = imageUris,
+                                    picturePaths = imagePaths,
+                                    title = itemName,
+                                    category = itemClothingCategory,
+                                    size = itemSize,
+                                    brand = itemBrand,
+                                    storedPlace = itemLocation
+                                )
+                            )
+                        }
+                        navController.navigate("wardrobeScreen")
                     },
-                state = rememberLazyListState()
-            ) {
-                item {
-                    TextField(
-                        value = itemName,
-                        modifier = Modifier.fillMaxWidth(),
-                        onValueChange = { itemName = it },
-                        label = { Text("Name") }
-                    )
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("SAVE")
                 }
-                item {
-                    HierarchicalDropdownMenu(categories = clothingCategories,
-                        onCategorySelected = { itemClothingCategory = it}
-                    )
-                    SizeCategorySelector(
-                        items = sizeHierarchy,
-                        onItemSelected = { itemSize = it},
-                        "Choisir une taille"
-                    )
-                    ExpandableListWithIconSelector(items = StoragePlaceManager.getStoragePlacesAsMap(),
-                        onItemSelected = { itemLocation = it },
-                        onAddItem = { newStoragePlace ->
-                            StoragePlaceManager.addStoragePlaces(context, newStoragePlace)
-                        },
-                        label = "Storage place" )
-                    ExpandableListSelector(items = BrandManager.getBrandsString(),
-                        onItemSelected = { itemBrand = it },
-                        onAddItem = { newBrand ->
-                            BrandManager.addBrand(context, newBrand)
-                        },
-                        label = "Brand" )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Bouton pour sauvegarder
-            Button(
-                onClick = {
-                    imagePaths = imageUris.map {
-                        storeImage(it, itemName, context)
-                    }
-                    val newClotheItem = ClotheItem(
-                        pictures = imageUris,
-                        picturePaths = imagePaths,
-                        title = itemName,
-                        category = itemClothingCategory,
-                        size = itemSize,
-                        brand = itemBrand,
-                        storedPlace = itemLocation)
-                    viewModel.saveClotheItem(newClotheItem)
-                    navController.navigate("wardrobeScreen")
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("SAVE")
             }
         }
     }
@@ -207,10 +268,12 @@ fun NewItemScreen(navController: NavController, viewModel: CatalogViewModel) {
 
 
 @Composable
-fun ClothesImageRow(onUrisUpdated: (photoUris: List<Uri>) -> Unit) {
+fun ClothesImageRow(previousPictures: List<String>, onUrisUpdated: (photoUris: List<Uri>) -> Unit) {
     var imageUris by remember {
         mutableStateOf(listOf<Uri>())
     }
+    val previousUris = previousPictures.map { Uri.fromFile(File(it)) }
+    imageUris = previousUris
     //The URI of the photo that the user has picked
     var photoUri: Uri? by remember { mutableStateOf(null) }
 
@@ -337,11 +400,6 @@ fun createFileNameWithTimestamp(baseName: String, extension: String): String {
     val timestamp = dateFormat.format(Date())
     return "${baseName}_${timestamp}.${extension}"
 }
-
-// Lors de la sauvegarde d'un item
-//val imagePath = storeImage(selectedImageUri, context)
-// Stockez imagePath dans la base de données au lieu de l'URI
-
 
 /*@Preview
 @Composable

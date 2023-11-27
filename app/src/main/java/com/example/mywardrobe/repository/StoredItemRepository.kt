@@ -10,6 +10,10 @@ class StoredItemRepository(private val storedItemDao: StoredItemDao) {
         return storedItemDao.getAll()
     }
 
+    fun getItemById(itemId: String): Flow<StoredItem?> {
+        return storedItemDao.getItemById(itemId)
+    }
+
     // Insérer un nouvel item
     suspend fun insertItem(item: StoredItem) {
         storedItemDao.insert(item)

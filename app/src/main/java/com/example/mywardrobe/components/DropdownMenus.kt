@@ -15,6 +15,7 @@ import com.example.mywardrobe.data.SizeCategory
 @ExperimentalMaterial3Api
 @Composable
 fun SizeCategorySelector(items: List<SizeCategory>,
+                         preselectedSize: Size,
                          onItemSelected: (Size) -> Unit,
                          label: String) {
     // state of the menu
@@ -26,6 +27,7 @@ fun SizeCategorySelector(items: List<SizeCategory>,
     var selectedItem by remember {
         mutableStateOf("")
     }
+    selectedItem = preselectedSize.size
 
     // box
     ExposedDropdownMenuBox(
@@ -156,9 +158,10 @@ fun flattenClothingCategories(categories: List<ClothingCategoryNode>, path: Stri
 }
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HierarchicalDropdownMenu(categories: List<ClothingCategoryNode>, onCategorySelected: (ClothingCategory) -> Unit) {
+fun HierarchicalDropdownMenu(categories: List<ClothingCategoryNode>, preselectedCategory: ClothingCategory, onCategorySelected: (ClothingCategory) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
+    selectedCategory = preselectedCategory.fullName
 
     // Créer une structure linéaire avec indentation pour représenter la hiérarchie
     val flattenedCategories = flattenClothingCategories(categories)
